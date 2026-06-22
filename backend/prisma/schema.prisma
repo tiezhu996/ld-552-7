@@ -54,6 +54,16 @@ enum UserRole {
   ADMIN
 }
 
+enum NotificationType {
+  RESUME_SUBMITTED
+  RESUME_STATUS_CHANGED
+  INTERVIEW_SCHEDULED
+  INTERVIEW_RESULT_UPDATED
+  OFFER_CREATED
+  OFFER_STATUS_CHANGED
+  SYSTEM
+}
+
 model User {
   id             Int        @id @default(autoincrement())
   name           String
@@ -65,6 +75,7 @@ model User {
   interviews     Interview[]
   approvedOffers Offer[]    @relation("OfferApprover")
   auditLogs      AuditLog[]
+  notifications  Notification[]
   createdAt      DateTime   @default(now())
   updatedAt      DateTime   @updatedAt
 }
@@ -159,4 +170,21 @@ model AuditLog {
   ipAddress    String?
   createdAt    DateTime @default(now())
   candidateId  Int?
+}
+
+model Notification {
+  id              Int              @id @default(autoincrement())
+  userId          Int
+  user            User             @relation(fields: [userId], references: [id])
+  type            NotificationType
+  title           String
+  content         String           @db.Text
+  isRead          Boolean          @default(false)
+  entity          String?
+  entityId        Int?
+  candidateId     Int?
+  createdAt       DateTime         @default(now())
+
+  @@index([userId, isRead])
+  @@index([createdAt])
 }
